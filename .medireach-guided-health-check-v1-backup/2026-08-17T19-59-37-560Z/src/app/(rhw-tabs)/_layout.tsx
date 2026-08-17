@@ -219,13 +219,6 @@ function RhwTabsContent() {
       />
 
       <Tabs.Screen
-        name="assessment-review"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
         name="clinical-capture"
         options={{
           href: null,

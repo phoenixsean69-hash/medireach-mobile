@@ -191,6 +191,13 @@ function TabsContent() {
       />
 
       <Tabs.Screen
+        name="health-check"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
         name="help"
         options={{
           href: null,

@@ -15,32 +15,32 @@ import {
   View,
 } from "react-native";
 
-import RhwLoading from "../../components/rhw/RhwLoading";
+import CitizenLoading from "../../components/citizen/CitizenLoading";
 
 import {
-  RhwAppProvider,
-  useRhwApp,
-} from "../../context/RhwAppContext";
+  CitizenAppProvider,
+  useCitizenApp,
+} from "../../context/CitizenAppContext";
 
 import {
-  RhwClinicalOfflineProvider,
-} from "../../context/RhwClinicalOfflineContext";
+  CitizenOfflineProvider,
+} from "../../context/CitizenOfflineContext";
 
 import {
   colors,
   fonts,
 } from "../../theme";
 
-function RhwTabsContent() {
+function TabsContent() {
   const {
     loading,
     t,
   } =
-    useRhwApp();
+    useCitizenApp();
 
   if (loading) {
     return (
-      <RhwLoading />
+      <CitizenLoading />
     );
   }
 
@@ -81,7 +81,9 @@ function RhwTabsContent() {
         name="index"
         options={{
           title:
-            t("Home"),
+            t(
+              "Home",
+            ),
 
           tabBarIcon: ({
             color,
@@ -105,7 +107,7 @@ function RhwTabsContent() {
       />
 
       <Tabs.Screen
-        name="requests"
+        name="care"
         options={{
           title:
             t(
@@ -145,8 +147,7 @@ function RhwTabsContent() {
               style={[
                 styles.sosIcon,
                 focused &&
-                  styles
-                    .sosIconActive,
+                  styles.sosIconActive,
               ]}
             >
               <Siren
@@ -190,6 +191,13 @@ function RhwTabsContent() {
       />
 
       <Tabs.Screen
+        name="help"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
         name="profile"
         options={{
           title:
@@ -217,31 +225,17 @@ function RhwTabsContent() {
           ),
         }}
       />
-
-      <Tabs.Screen
-        name="assessment-review"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="clinical-capture"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }
 
-export default function RhwTabsLayout() {
+export default function CitizenTabsLayout() {
   return (
-    <RhwAppProvider>
-      <RhwClinicalOfflineProvider>
-        <RhwTabsContent />
-      </RhwClinicalOfflineProvider>
-    </RhwAppProvider>
+    <CitizenAppProvider>
+      <CitizenOfflineProvider>
+        <TabsContent />
+      </CitizenOfflineProvider>
+    </CitizenAppProvider>
   );
 }
 

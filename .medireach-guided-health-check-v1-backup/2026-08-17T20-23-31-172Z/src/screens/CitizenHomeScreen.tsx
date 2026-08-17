@@ -52,10 +52,6 @@ import {
 } from "../services/citizenDataService";
 
 import {
-  assessmentT,
-} from "../i18n/symptomAssessmentLanguage";
-
-import {
   colors,
   fonts,
   radius,
@@ -639,65 +635,6 @@ export default function CitizenHomeScreen() {
         />
       </Pressable>
 
-      <Pressable
-        style={
-          styles.healthCheckCard
-        }
-        onPress={() =>
-          router.push(
-            "/(citizen-tabs)/health-check",
-          )
-        }
-      >
-        <View
-          style={
-            styles.healthCheckIcon
-          }
-        >
-          <HeartPulse
-            size={23}
-            color={
-              colors.white
-            }
-          />
-        </View>
-
-        <View
-          style={{
-            flex: 1,
-          }}
-        >
-          <Text
-            style={
-              styles.healthCheckTitle
-            }
-          >
-            {assessmentT(
-              language,
-              "Health Check",
-            )}
-          </Text>
-
-          <Text
-            style={
-              styles.healthCheckText
-            }
-          >
-            {assessmentT(
-              language,
-              "Tell MediReach what you feel. It will ask focused questions and prepare a preliminary assessment for a health worker to review.",
-            )}
-          </Text>
-        </View>
-
-        <ArrowRight
-          size={19}
-          color={
-            colors.charcoal
-          }
-        />
-      </Pressable>
-
       <Text
         style={
           styles.sectionTitle
@@ -1048,37 +985,6 @@ const styles =
       fontSize:13,
     },
     sosSubtitle:{
-      marginTop:3,
-      fontFamily:fonts.regular,
-      color:colors.muted,
-      fontSize:8,
-      lineHeight:13,
-    },
-    healthCheckCard:{
-      marginTop:14,
-      padding:14,
-      borderRadius:radius.large,
-      borderWidth:1,
-      borderColor:colors.border,
-      backgroundColor:colors.surfaceSoft,
-      flexDirection:"row",
-      alignItems:"center",
-      gap:11,
-    },
-    healthCheckIcon:{
-      width:47,
-      height:47,
-      borderRadius:15,
-      backgroundColor:colors.charcoal,
-      alignItems:"center",
-      justifyContent:"center",
-    },
-    healthCheckTitle:{
-      fontFamily:fonts.bold,
-      color:colors.text,
-      fontSize:13,
-    },
-    healthCheckText:{
       marginTop:3,
       fontFamily:fonts.regular,
       color:colors.muted,

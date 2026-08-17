@@ -48,8 +48,6 @@ export const TABLES = {
   appointments:
     "appointments",
   auditLogs: "audit_logs",
-  symptomAssessments:
-    "symptom_assessments",
 } as const;
 
 export const client =

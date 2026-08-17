@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, HeartPulse, MapPin, Mic, Stethoscope, UserRound } from "lucide-react-native";
+import { ChevronDown, ChevronUp, MapPin, Mic, Stethoscope, UserRound } from "lucide-react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -13,15 +13,6 @@ import {
   claimCareRequest, completeCareRequest, listRhwCareRequests,
   patientDisplayName, startCareRequest, type RhwCareRequest,
 } from "../services/rhwDataService";
-import {
-  listNearbyRhwSymptomAssessments,
-  type SymptomAssessmentRow,
-} from "../services/symptomAssessmentService";
-import {
-  COMPLAINT_LABELS,
-  assessmentT,
-  localizedLabel,
-} from "../i18n/symptomAssessmentLanguage";
 import { colors, fonts, radius } from "../theme";
 
 type Filter="all"|"mine"|"unassigned"|"urgent";
@@ -31,7 +22,6 @@ export default function RhwQueueScreen() {
   const insets=useSafeAreaInsets();
   const {user,language}=useRhwApp();
   const [rows,setRows]=useState<RhwCareRequest[]>([]);
-  const [assessmentRows,setAssessmentRows]=useState<SymptomAssessmentRow[]>([]);
   const [loading,setLoading]=useState(true);
   const [refreshing,setRefreshing]=useState(false);
   const [error,setError]=useState("");
@@ -39,22 +29,10 @@ export default function RhwQueueScreen() {
   const [expanded,setExpanded]=useState<string|null>(null);
   const [busyId,setBusyId]=useState<string|null>(null);
   const t=(key:RhwCopyKey)=>rhwT(language,key);
-  const at=(text:string)=>assessmentT(language,text);
 
   const load=useCallback(async()=>{
-    try {
-      setError("");
-      const [careResult,assessmentResult]=await Promise.allSettled([
-        listRhwCareRequests(),
-        listNearbyRhwSymptomAssessments(),
-      ]);
-
-      if(careResult.status==="fulfilled") setRows(careResult.value);
-      else setError((careResult.reason as any)?.message??t("loadFailed"));
-
-      if(assessmentResult.status==="fulfilled") setAssessmentRows(assessmentResult.value);
-      else setAssessmentRows([]);
-    }
+    try { setError(""); setRows(await listRhwCareRequests()); }
+    catch(e:any){ setError(e?.message??t("loadFailed")); }
     finally { setLoading(false); setRefreshing(false); }
   },[language]);
 
@@ -113,44 +91,6 @@ export default function RhwQueueScreen() {
     >
       <Text style={styles.eyebrow}>Rural Health Worker</Text>
       <Text style={styles.title}>{t("careRequests")}</Text>
-
-      <View style={styles.assessmentHeader}>
-        <View style={styles.assessmentHeaderIcon}>
-          <HeartPulse size={18} color={colors.white}/>
-        </View>
-        <View style={{flex:1}}>
-          <Text style={styles.assessmentHeaderTitle}>{at("Patient Health Checks")}</Text>
-          <Text style={styles.assessmentHeaderText}>{at("Guided patient assessments waiting for review near you.")}</Text>
-        </View>
-        <Text style={styles.assessmentCount}>{assessmentRows.length}</Text>
-      </View>
-
-      {assessmentRows.length>0 ? (
-        <View style={styles.assessmentList}>
-          {assessmentRows.slice(0,8).map(item=>(
-            <Pressable
-              key={item.$id}
-              onPress={()=>router.push({pathname:"/(rhw-tabs)/assessment-review",params:{assessmentId:item.$id}} as any)}
-              style={styles.assessmentCard}
-            >
-              <View style={styles.assessmentPatientIcon}>
-                <UserRound size={18} color={colors.charcoal}/>
-              </View>
-              <View style={{flex:1}}>
-                <Text style={styles.assessmentPatient}>
-                  {patientDisplayName(item.patient,item.patientId)}
-                </Text>
-                <Text style={styles.assessmentMeta}>
-                  {localizedLabel(language,COMPLAINT_LABELS,item.mainComplaint)} · {at(display(item.triageLevel))}
-                  {typeof item.distanceKm==="number"?` · ${item.distanceKm.toFixed(1)} km`:""}
-                </Text>
-                <Text style={styles.assessmentStatus}>{at("Review assessment")}</Text>
-              </View>
-              <HeartPulse size={17} color={colors.charcoal}/>
-            </Pressable>
-          ))}
-        </View>
-      ):null}
 
       <View style={styles.filters}>
         {filters.map(item=>{
@@ -275,17 +215,6 @@ const styles=StyleSheet.create({
   root:{flex:1,backgroundColor:colors.canvas},content:{paddingHorizontal:18,paddingBottom:36},
   eyebrow:{fontFamily:fonts.bold,color:colors.muted,fontSize:9,textTransform:"uppercase"},
   title:{marginTop:5,fontFamily:fonts.bold,color:colors.text,fontSize:26},
-  assessmentHeader:{marginTop:16,padding:12,borderRadius:radius.large,backgroundColor:colors.charcoal,flexDirection:"row",alignItems:"center",gap:10},
-  assessmentHeaderIcon:{width:38,height:38,borderRadius:12,backgroundColor:"rgba(255,255,255,0.12)",alignItems:"center",justifyContent:"center"},
-  assessmentHeaderTitle:{fontFamily:fonts.bold,color:colors.white,fontSize:11},
-  assessmentHeaderText:{marginTop:3,fontFamily:fonts.regular,color:colors.border,fontSize:8,lineHeight:12},
-  assessmentCount:{minWidth:28,textAlign:"center",fontFamily:fonts.bold,color:colors.white,fontSize:12},
-  assessmentList:{marginTop:8,gap:8},
-  assessmentCard:{minHeight:72,padding:11,borderRadius:radius.card,borderWidth:1,borderColor:colors.border,backgroundColor:colors.white,flexDirection:"row",alignItems:"center",gap:9},
-  assessmentPatientIcon:{width:38,height:38,borderRadius:12,backgroundColor:colors.surfaceSoft,alignItems:"center",justifyContent:"center"},
-  assessmentPatient:{fontFamily:fonts.bold,color:colors.text,fontSize:10},
-  assessmentMeta:{marginTop:3,fontFamily:fonts.regular,color:colors.muted,fontSize:8,textTransform:"capitalize"},
-  assessmentStatus:{marginTop:3,fontFamily:fonts.bold,color:colors.charcoal,fontSize:7},
   filters:{marginTop:17,flexDirection:"row",flexWrap:"wrap",gap:7},
   filter:{minHeight:36,paddingHorizontal:12,borderRadius:radius.pill,borderWidth:1,borderColor:colors.border,backgroundColor:colors.white,alignItems:"center",justifyContent:"center"},
   filterActive:{backgroundColor:colors.charcoal,borderColor:colors.charcoal},
