@@ -1,14 +1,135 @@
 {
   "cli": {
-    "version": ">= 16.0.0"
+    "version": ">= 18.4.0",
+    "appVersionSource": "remote"
   },
   "build": {
-    "preview": {
+    "development": {
+      "developmentClient": true,
       "distribution": "internal",
-      "android": {
-        "buildType": "apk"
+      "env": {
+        "EXPO_PUBLIC_APPWRITE_ENDPOINT": "https://syd.cloud.appwrite.io/v1",
+        "EXPO_PUBLIC_APPWRITE_PROJECT_ID": "medireach",
+        "EXPO_PUBLIC_APPWRITE_DATABASE_ID": "medireach_db",
+        "EXPO_PUBLIC_APPWRITE_BUCKET_ID": "medireach_storage",
+        "EXPO_PUBLIC_APPWRITE_STORAGE_ID": "medireach_storage",
+
+        "EXPO_PUBLIC_APPWRITE_PROFILES_TABLE_ID": "profiles",
+        "EXPO_PUBLIC_APPWRITE_PATIENTS_TABLE_ID": "patients",
+        "EXPO_PUBLIC_APPWRITE_FACILITIES_TABLE_ID": "facilities",
+        "EXPO_PUBLIC_APPWRITE_SOS_ALERTS_TABLE_ID": "sos_alerts",
+        "EXPO_PUBLIC_APPWRITE_CARE_REQUESTS_TABLE_ID": "care_requests",
+        "EXPO_PUBLIC_APPWRITE_ENCOUNTERS_TABLE_ID": "encounters",
+        "EXPO_PUBLIC_APPWRITE_VITALS_TABLE_ID": "vitals",
+        "EXPO_PUBLIC_APPWRITE_CONVERSATIONS_TABLE_ID": "conversations",
+        "EXPO_PUBLIC_APPWRITE_MESSAGES_TABLE_ID": "messages",
+        "EXPO_PUBLIC_APPWRITE_CARE_PACKETS_TABLE_ID": "care_packets",
+        "EXPO_PUBLIC_APPWRITE_DECISION_SUPPORT_TABLE_ID": "decision_support",
+        "EXPO_PUBLIC_APPWRITE_REFERRALS_TABLE_ID": "referrals",
+        "EXPO_PUBLIC_APPWRITE_PRESCRIPTIONS_TABLE_ID": "prescriptions",
+        "EXPO_PUBLIC_APPWRITE_APPOINTMENTS_TABLE_ID": "appointments",
+        "EXPO_PUBLIC_APPWRITE_AUDIT_LOGS_TABLE_ID": "audit_logs",
+        "EXPO_PUBLIC_APPWRITE_SYMPTOM_ASSESSMENTS_TABLE_ID": "symptom_assessments",
+
+        
       }
     },
+
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_APPWRITE_ENDPOINT": "https://syd.cloud.appwrite.io/v1",
+        "EXPO_PUBLIC_APPWRITE_PROJECT_ID": "medireach",
+        "EXPO_PUBLIC_APPWRITE_DATABASE_ID": "medireach_db",
+        "EXPO_PUBLIC_APPWRITE_BUCKET_ID": "medireach_storage",
+        "EXPO_PUBLIC_APPWRITE_STORAGE_ID": "medireach_storage",
+
+        "EXPO_PUBLIC_APPWRITE_PROFILES_TABLE_ID": "profiles",
+        "EXPO_PUBLIC_APPWRITE_PATIENTS_TABLE_ID": "patients",
+        "EXPO_PUBLIC_APPWRITE_FACILITIES_TABLE_ID": "facilities",
+        "EXPO_PUBLIC_APPWRITE_SOS_ALERTS_TABLE_ID": "sos_alerts",
+        "EXPO_PUBLIC_APPWRITE_CARE_REQUESTS_TABLE_ID": "care_requests",
+        "EXPO_PUBLIC_APPWRITE_ENCOUNTERS_TABLE_ID": "encounters",
+        "EXPO_PUBLIC_APPWRITE_VITALS_TABLE_ID": "vitals",
+        "EXPO_PUBLIC_APPWRITE_CONVERSATIONS_TABLE_ID": "conversations",
+        "EXPO_PUBLIC_APPWRITE_MESSAGES_TABLE_ID": "messages",
+        "EXPO_PUBLIC_APPWRITE_CARE_PACKETS_TABLE_ID": "care_packets",
+        "EXPO_PUBLIC_APPWRITE_DECISION_SUPPORT_TABLE_ID": "decision_support",
+        "EXPO_PUBLIC_APPWRITE_REFERRALS_TABLE_ID": "referrals",
+        "EXPO_PUBLIC_APPWRITE_PRESCRIPTIONS_TABLE_ID": "prescriptions",
+        "EXPO_PUBLIC_APPWRITE_APPOINTMENTS_TABLE_ID": "appointments",
+        "EXPO_PUBLIC_APPWRITE_AUDIT_LOGS_TABLE_ID": "audit_logs",
+        "EXPO_PUBLIC_APPWRITE_SYMPTOM_ASSESSMENTS_TABLE_ID": "symptom_assessments",
+
+        
+      }
+    },
+
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_APPWRITE_ENDPOINT": "https://syd.cloud.appwrite.io/v1",
+        "EXPO_PUBLIC_APPWRITE_PROJECT_ID": "medireach",
+        "EXPO_PUBLIC_APPWRITE_DATABASE_ID": "medireach_db",
+        "EXPO_PUBLIC_APPWRITE_BUCKET_ID": "medireach_storage",
+        "EXPO_PUBLIC_APPWRITE_STORAGE_ID": "medireach_storage",
+
+        "EXPO_PUBLIC_APPWRITE_PROFILES_TABLE_ID": "profiles",
+        "EXPO_PUBLIC_APPWRITE_PATIENTS_TABLE_ID": "patients",
+        "EXPO_PUBLIC_APPWRITE_FACILITIES_TABLE_ID": "facilities",
+        "EXPO_PUBLIC_APPWRITE_SOS_ALERTS_TABLE_ID": "sos_alerts",
+        "EXPO_PUBLIC_APPWRITE_CARE_REQUESTS_TABLE_ID": "care_requests",
+        "EXPO_PUBLIC_APPWRITE_ENCOUNTERS_TABLE_ID": "encounters",
+        "EXPO_PUBLIC_APPWRITE_VITALS_TABLE_ID": "vitals",
+        "EXPO_PUBLIC_APPWRITE_CONVERSATIONS_TABLE_ID": "conversations",
+        "EXPO_PUBLIC_APPWRITE_MESSAGES_TABLE_ID": "messages",
+        "EXPO_PUBLIC_APPWRITE_CARE_PACKETS_TABLE_ID": "care_packets",
+        "EXPO_PUBLIC_APPWRITE_DECISION_SUPPORT_TABLE_ID": "decision_support",
+        "EXPO_PUBLIC_APPWRITE_REFERRALS_TABLE_ID": "referrals",
+        "EXPO_PUBLIC_APPWRITE_PRESCRIPTIONS_TABLE_ID": "prescriptions",
+        "EXPO_PUBLIC_APPWRITE_APPOINTMENTS_TABLE_ID": "appointments",
+        "EXPO_PUBLIC_APPWRITE_AUDIT_LOGS_TABLE_ID": "audit_logs",
+        "EXPO_PUBLIC_APPWRITE_SYMPTOM_ASSESSMENTS_TABLE_ID": "symptom_assessments",
+
+        
+      }
+    },
+
+    "androidapk": {
+      "env": {
+        "EXPO_PUBLIC_APPWRITE_ENDPOINT": "https://syd.cloud.appwrite.io/v1",
+        "EXPO_PUBLIC_APPWRITE_PROJECT_ID": "medireach",
+        "EXPO_PUBLIC_APPWRITE_DATABASE_ID": "medireach_db",
+        "EXPO_PUBLIC_APPWRITE_BUCKET_ID": "medireach_storage",
+        "EXPO_PUBLIC_APPWRITE_STORAGE_ID": "medireach_storage",
+
+        "EXPO_PUBLIC_APPWRITE_PROFILES_TABLE_ID": "profiles",
+        "EXPO_PUBLIC_APPWRITE_PATIENTS_TABLE_ID": "patients",
+        "EXPO_PUBLIC_APPWRITE_FACILITIES_TABLE_ID": "facilities",
+        "EXPO_PUBLIC_APPWRITE_SOS_ALERTS_TABLE_ID": "sos_alerts",
+        "EXPO_PUBLIC_APPWRITE_CARE_REQUESTS_TABLE_ID": "care_requests",
+        "EXPO_PUBLIC_APPWRITE_ENCOUNTERS_TABLE_ID": "encounters",
+        "EXPO_PUBLIC_APPWRITE_VITALS_TABLE_ID": "vitals",
+        "EXPO_PUBLIC_APPWRITE_CONVERSATIONS_TABLE_ID": "conversations",
+        "EXPO_PUBLIC_APPWRITE_MESSAGES_TABLE_ID": "messages",
+        "EXPO_PUBLIC_APPWRITE_CARE_PACKETS_TABLE_ID": "care_packets",
+        "EXPO_PUBLIC_APPWRITE_DECISION_SUPPORT_TABLE_ID": "decision_support",
+        "EXPO_PUBLIC_APPWRITE_REFERRALS_TABLE_ID": "referrals",
+        "EXPO_PUBLIC_APPWRITE_PRESCRIPTIONS_TABLE_ID": "prescriptions",
+        "EXPO_PUBLIC_APPWRITE_APPOINTMENTS_TABLE_ID": "appointments",
+        "EXPO_PUBLIC_APPWRITE_AUDIT_LOGS_TABLE_ID": "audit_logs",
+        "EXPO_PUBLIC_APPWRITE_SYMPTOM_ASSESSMENTS_TABLE_ID": "symptom_assessments",
+
+        
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a"
+      }
+    }
+  },
+
+  "submit": {
     "production": {}
   }
 }
