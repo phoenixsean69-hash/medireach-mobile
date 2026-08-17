@@ -1,18 +1,19 @@
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import {
   Check,
   ChevronDown,
   Search,
   X,
-} from "lucide-react-native";
+  } from "lucide-react-native";
 import {
   useMemo,
   useState,
-} from "react";
+  } from "react";
 import {
   FlatList,
   Modal,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,

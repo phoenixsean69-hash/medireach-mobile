@@ -4,10 +4,16 @@ import {
   type ReactNode,
 } from "react";
 
+import {
+  isZimbabweTextLanguage,
+  normalizeZimbabweLanguage,
+  translateZimbabweText,
+  zimbabweLanguageDisplayName,
+  type ZimbabweTextLanguage,
+} from "../i18n/zimbabweLanguages";
+
 export type SignupLanguage =
-  | "English"
-  | "Shona"
-  | "isiNdebele";
+  ZimbabweTextLanguage;
 
 const SHONA: Record<string, string> = {
   "Detecting local language...": "Tiri kutsvaga mutauro wenzvimbo...",
@@ -22,23 +28,21 @@ const SHONA: Record<string, string> = {
   "Tell us how you will use MediReach.": "Tiudze kuti uchashandisa sei MediReach.",
   "Citizen / Patient": "Mugari / Murwere",
   "Personal healthcare and emergency access.": "Hutano hwako uye rubatsiro rwechimbichimbi.",
-  "Rural Health Worker": "Mushandi Wehutano Kumaruwa",
-  "Community and rural frontline healthcare.": "Hutano hwemunharaunda nekumaruwa.",
+  "Rural Health Worker": "Mushandi Wehutano kumamisha",
+  "Community and rural frontline healthcare.": "Hutano hwemunharaunda nekumamisha.",
   "Nurse": "Mukoti",
   "Clinical nursing and facility care.": "Basa remukoti nekuchengetwa panzvimbo yehutano.",
   "Doctor": "Chiremba",
   "Medical practitioner and clinical decision making.": "Kurapa uye kuita zvisarudzo zvekurapa.",
-  "Specialist": "Chiremba Nyanzvi",
-  "Specialist and referral-level clinical care.": "Kurapwa kwenyanzvi uye kutumirwa kunoenderera.",
+  "Specialist": "Mazvikokota",
   "Hospital administrator and MediReach administrator accounts are invitation-only.": "Maaccount evatungamiri vezvipatara neMediReach anogadzirwa nekukokwa chete.",
-
   "About you": "Nezvako",
   "Personal, contact and location details": "Mashoko ako, ekubata uye ekwaunogara",
   "First name": "Zita rekutanga",
   "Middle name": "Zita repakati",
   "Last name": "Zita rekupedzisira",
   "Date of birth": "Zuva rekuzvarwa",
-  "Gender": "Bonde",
+  "Gender": "Zvauri",
   "Male": "Murume",
   "Female": "Mukadzi",
   "National ID / Passport": "Chitupa / Pasipoti",
@@ -46,7 +50,7 @@ const SHONA: Record<string, string> = {
   "Email address": "Kero yeemail",
   "Preferred language": "Mutauro waunoda",
   "Province": "Dunhu",
-  "District": "Ruwa",
+  "District": "musha",
   "Town / Village": "Dhorobha / Musha",
   "Home address / Area": "Kero yekumba / Nzvimbo",
 
@@ -81,8 +85,8 @@ const SHONA: Record<string, string> = {
 
   "Emergency & security": "Zvechimbichimbi nekuchengetedzwa",
   "Finish your MediReach account.": "Pedzisa account yako yeMediReach.",
-  "Emergency contact name": "Zita remunhu wekufonera pachimbichimbi",
-  "Emergency contact phone": "Foni yemunhu wekufonera pachimbichimbi",
+  "Emergency contact name": "Zita remunhu wekufonera kana ukasawanikwa",
+  "Emergency contact phone": "Foni yemunhu wekufonera kana ukasawanikwa",
   "Relationship": "Hukama",
   "e.g. Parent, spouse, sibling": "semuenzaniso Mubereki, murume/mukadzi, mukoma kana munin'ina",
   "Password": "Password",
@@ -91,16 +95,16 @@ const SHONA: Record<string, string> = {
   "I confirm that the information I provided is accurate and belongs to me.": "Ndinobvuma kuti mashoko andapa akarurama uye ndeangu.",
   "Back": "Dzokera",
   "I have an account": "Ndine account",
-  "Continue": "Enderera",
+  "Continue": "Enderera mberi",
   "Create account": "Gadzira account",
 
   "Personal details": "Mashoko ako",
   "First name and last name are required.": "Zita rekutanga nerekupedzisira zvinodiwa.",
-  "Date of birth and gender are required.": "Zuva rekuzvarwa nebonde zvinodiwa.",
+  "Date of birth and gender are required.": "Zuva rekuzvarwa neZvauri zvinodiwa.",
   "Contact details": "Mashoko ekubata",
   "Phone number is required.": "Nhamba yefoni inodiwa.",
   "Location details": "Mashoko enzvimbo",
-  "Province, district and town / village are required.": "Dunhu, ruwa uye dhorobha kana musha zvinodiwa.",
+  "Province, district and town / village are required.": "Dunhu, musha uye dhorobha kana musha zvinodiwa.",
   "Check your details": "Tarisa mashoko ako",
   "Account created": "Account yagadzirwa",
   "Your account was created. Professional access is pending verification.": "Account yako yagadzirwa. Kupinda semushandi wehutano kuchamirira kusimbiswa.",
@@ -116,10 +120,10 @@ const SHONA: Record<string, string> = {
   "Enter a valid email address or leave it blank.": "Nyora email yakakodzera kana kuisiya isina chinhu.",
   "Preferred language is required.": "Mutauro waunoda unodiwa.",
   "Province is required.": "Dunhu rinodiwa.",
-  "District is required.": "Ruwa runodiwa.",
+  "District is required.": "musha runodiwa.",
   "Town or village is required.": "Dhorobha kana musha zvinodiwa.",
-  "Emergency contact name is required.": "Zita remunhu wekufonera pachimbichimbi rinodiwa.",
-  "Enter a valid emergency contact phone number.": "Nyora nhamba yefoni yemunhu wekufonera pachimbichimbi yakakodzera.",
+  "Emergency contact name is required.": "Zita remunhu wekufonera kana ukasawanikwa rinodiwa.",
+  "Enter a valid emergency contact phone number.": "Nyora nhamba yefoni yemunhu wekufonera kana ukasawanikwa yakakodzera.",
   "Worker / employee number is required.": "Nhamba yemushandi inodiwa.",
   "Catchment / community area is required.": "Nzvimbo yaunoshandira kana nharaunda inodiwa.",
   "Training level is required.": "Chikamu chekudzidziswa chinodiwa.",
@@ -134,7 +138,7 @@ const SHONA: Record<string, string> = {
 
   "Optional": "Hazvimanikidzwi",
   "Select": "Sarudza",
-  "Select district": "Sarudza ruwa",
+  "Select district": "Sarudza musha",
   "Select province first": "Tanga wasarudza dunhu",
   "selected": "zvasarudzwa",
   "Search and select": "Tsvaga uye sarudza",
@@ -411,27 +415,24 @@ const NDEBELE: Record<string, string> = {
   "Search, tap the map, or use your current location before confirming.": "Dinga, thinta imephu kumbe usebenzise indawo yakho yamanje ungakaqinisekisi."
 };
 
-const DICTIONARIES: Record<
-  SignupLanguage,
-  Record<string, string>
-> = {
-  English: {},
-  Shona: SHONA,
-  isiNdebele: NDEBELE,
-};
+const DICTIONARIES:
+  Partial<
+    Record<
+      SignupLanguage,
+      Record<string, string>
+    >
+  > = {
+    English: {},
+    Shona: SHONA,
+    isiNdebele: NDEBELE,
+  };
 
 export function normalizeSignupLanguage(
   value: string,
 ): SignupLanguage {
-  if (value === "Shona") {
-    return "Shona";
-  }
-
-  if (value === "isiNdebele") {
-    return "isiNdebele";
-  }
-
-  return "English";
+  return normalizeZimbabweLanguage(
+    value,
+  );
 }
 
 export function signupT(
@@ -446,55 +447,34 @@ export function signupT(
   return (
     DICTIONARIES[
       normalized
-    ][text] ?? text
+    ]?.[text] ??
+    translateZimbabweText(
+      text,
+      normalized,
+    )
   );
 }
 
 export function signupLanguageLabel(
   value: string,
-  uiLanguage: string,
+  _uiLanguage: string,
 ) {
-  const language =
-    normalizeSignupLanguage(
-      uiLanguage,
-    );
-
-  if (language === "Shona") {
-    if (value === "English") {
-      return "Chirungu";
-    }
-
-    if (value === "Shona") {
-      return "ChiShona";
-    }
-
-    if (
-      value === "isiNdebele"
-    ) {
-      return "isiNdebele";
-    }
-  }
-
   if (
-    language ===
-    "isiNdebele"
+    isZimbabweTextLanguage(
+      value,
+    ) ||
+    normalizeZimbabweLanguage(
+      value,
+    ) !== "English"
   ) {
-    if (value === "English") {
-      return "IsiNgisi";
-    }
-
-    if (value === "Shona") {
-      return "isiShona";
-    }
-
-    if (
-      value === "isiNdebele"
-    ) {
-      return "isiNdebele";
-    }
+    return zimbabweLanguageDisplayName(
+      value,
+    );
   }
 
-  return value;
+  return value === "English"
+    ? "English"
+    : value;
 }
 
 
@@ -770,9 +750,9 @@ export function signupOptionLabel(
   language: string,
 ) {
   if (
-    value === "English" ||
-    value === "Shona" ||
-    value === "isiNdebele"
+    isZimbabweTextLanguage(
+      value,
+    )
   ) {
     return signupLanguageLabel(
       value,

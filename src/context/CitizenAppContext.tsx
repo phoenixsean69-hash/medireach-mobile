@@ -20,10 +20,14 @@ import {
   detectDeviceSignupLanguage,
 } from "../services/localLanguageService";
 
+import {
+  normalizeZimbabweLanguage,
+  translateZimbabweText,
+  type ZimbabweTextLanguage,
+} from "../i18n/zimbabweLanguages";
+
 export type AppLanguage =
-  | "English"
-  | "Shona"
-  | "isiNdebele";
+  ZimbabweTextLanguage;
 
 type GenericRow =
   Record<string, any> & {
@@ -48,6 +52,8 @@ const SHONA:
     "Care": "Rubatsiro",
     "SOS": "SOS",
     "Messages": "Mamesiji",
+    "Waiting to send": "Yakamirira kutumirwa",
+    "Needs attention": "Inoda kugadziriswa",
     "Profile": "Profile",
 
     "Good morning": "Mangwanani",
@@ -202,6 +208,8 @@ const NDEBELE:
     "Care": "Ukunakekelwa",
     "SOS": "SOS",
     "Messages": "Imilayezo",
+    "Waiting to send": "Ilindele ukuthunyelwa",
+    "Needs attention": "Idinga ukulungiswa",
     "Profile": "Iphrofayili",
 
     "Good morning": "Livukile",
@@ -353,26 +361,9 @@ const NDEBELE:
 function normalizeLanguage(
   value: unknown,
 ): AppLanguage {
-  const text =
-    String(value || "")
-      .trim()
-      .toLowerCase();
-
-  if (
-    text === "shona" ||
-    text === "chishona"
-  ) {
-    return "Shona";
-  }
-
-  if (
-    text === "isindebele" ||
-    text === "ndebele"
-  ) {
-    return "isiNdebele";
-  }
-
-  return "English";
+  return normalizeZimbabweLanguage(
+    value,
+  );
 }
 
 function translate(
@@ -382,16 +373,31 @@ function translate(
   if (
     language === "Shona"
   ) {
-    return SHONA[text] ?? text;
+    return (
+      SHONA[text] ??
+      translateZimbabweText(
+        text,
+        language,
+      )
+    );
   }
 
   if (
     language === "isiNdebele"
   ) {
-    return NDEBELE[text] ?? text;
+    return (
+      NDEBELE[text] ??
+      translateZimbabweText(
+        text,
+        language,
+      )
+    );
   }
 
-  return text;
+  return translateZimbabweText(
+    text,
+    language,
+  );
 }
 
 const CitizenAppContext =

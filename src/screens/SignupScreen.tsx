@@ -21,7 +21,7 @@ import {
     DISTRICTS_BY_PROVINCE,
     FACILITIES,
     LANGUAGES, MEDICAL_AID_PROVIDERS, NURSING_CADRES, PRACTITIONER_TYPES,
-    RHW_TDhorobhaNG_LEVELS, SUBSPECIALTIES,
+    RHW_TRAINING_LEVELS, SUBSPECIALTIES,
     ZIMBABWE_PROVINCES,
 } from "../data/signupOptions";
 
@@ -232,7 +232,7 @@ export default function SignupScreen() {
       Alert.alert(
         t("Account created"),
         isProfessionalRole(form.role)
-          ? t("Your account was created. Professional access is pending verification.")
+          ? t("Your MediReach professional account is ready.")
           : t("Your MediReach citizen account is ready."),
         [{ text: t("Continue"), onPress: () => router.replace("/auth-success") }],
       );
@@ -293,7 +293,7 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.languageRow}>
-            {(["English", "Shona", "isiNdebele"] as SignupLanguage[]).map((item) => {
+            {(LANGUAGES as SignupLanguage[]).map((item) => {
               const active = language === item;
 
               return (
@@ -352,7 +352,7 @@ export default function SignupScreen() {
           {step === 1 && (
             <>
               <Text style={styles.title}>{t("About you")}</Text>
-              <Text style={styles.subtitle}>{t(role?.title ?? "")} · {t("Personal, contact and location details")}</Text>
+              <Text style={styles.subtitle}>{t(role?.title ?? "")} Ã‚Â· {t("Personal, contact and location details")}</Text>
 
               <Field label="First name" value={form.firstName} onChangeText={(v) => set("firstName", v)} required />
               <Field label="Middle name" value={form.middleName} onChangeText={(v) => set("middleName", v)} />
@@ -556,10 +556,10 @@ export default function SignupScreen() {
                     required
                   />
                   <SinglePicker
-                    label="TDhorobhang level"
-                    value={form.tDhorobhangLevel}
-                    options={RHW_TDhorobhaNG_LEVELS}
-                    onChange={(v) => set("tDhorobhangLevel", v)}
+                    label="Training level"
+                    value={form.trainingLevel}
+                    options={RHW_TRAINING_LEVELS}
+                    onChange={(v) => set("trainingLevel", v)}
                     required
                   />
                   <Field
@@ -739,7 +739,7 @@ export default function SignupScreen() {
                 <View style={styles.noteBox}>
                   <ShieldCheck size={18} color={colors.charcoal} />
                   <Text style={styles.noteText}>
-                    {t("Professional clinical access remains pending until credentials are verified.")}
+                    {t("Your professional MediReach access starts immediately after account creation.")}
                   </Text>
                 </View>
               )}
@@ -835,7 +835,7 @@ const styles = StyleSheet.create({
     fontSize: 8, lineHeight: 12,
   },
   languageRow: {
-    marginTop: 10, flexDirection: "row", gap: 6,
+    marginTop: 10, flexDirection: "row", flexWrap: "wrap", gap: 6,
   },
   languageChip: {
     minHeight: 36, flex: 1, paddingHorizontal: 8, borderWidth: 1,

@@ -45,6 +45,12 @@ import {
 } from "../context/CitizenAppContext";
 
 import {
+  useCitizenOffline,
+} from "../context/CitizenOfflineContext";
+
+import CitizenOfflineBanner from "../components/citizen/CitizenOfflineBanner";
+
+import {
   colors,
   fonts,
   radius,
@@ -179,6 +185,15 @@ const SHONA:
 
     "Your emergency alert was saved in MediReach.":
       "SOS yako yachengetedzwa muMediReach.",
+
+    "SOS saved - NOT YET SENT":
+      "SOS yachengetwa - HAISATI YATUMIRWA",
+
+    "Your emergency is saved on this device but has not reached a responder yet. MediReach will keep trying when internet returns. Use USSD *347*99# if available.":
+      "SOS yako yachengetwa pafoni iyi asi haisati yasvika kumupinduri. MediReach icharamba ichiedza internet painodzoka. Shandisa USSD *347*99# kana ichishanda.",
+
+    "Waiting to sync - NOT YET SENT":
+      "Yakamirira kutumirwa - HAISATI YATUMIRWA",
 
     "SOS failed":
       "SOS yatadza kutumirwa",
@@ -327,6 +342,15 @@ const NDEBELE:
     "Your emergency alert was saved in MediReach.":
       "I-SOS yakho igcinwe kuMediReach.",
 
+    "SOS saved - NOT YET SENT":
+      "I-SOS igcinwe - AYIKATHUNYELWA",
+
+    "Your emergency is saved on this device but has not reached a responder yet. MediReach will keep trying when internet returns. Use USSD *347*99# if available.":
+      "I-SOS yakho igcinwe kule ifoni kodwa ayikafiki kumphenduli. IMediReach izaendelea izama nxa internet isibuya. Sebenzisa i-USSD *347*99# nxa ikhona.",
+
+    "Waiting to sync - NOT YET SENT":
+      "Ilindele ukuthunyelwa - AYIKATHUNYELWA",
+
     "SOS failed":
       "Ukuthumela i-SOS kwehlulekile",
 
@@ -432,6 +456,11 @@ export default function CitizenSosScreen() {
     language,
   } =
     useCitizenApp();
+
+  const {
+    syncRevision,
+  } =
+    useCitizenOffline();
 
   const tr =
     (
@@ -589,8 +618,15 @@ export default function CitizenSosScreen() {
 
   useEffect(() => {
     refreshAlerts();
-    captureLocation();
-  }, []);
+
+    if (
+      syncRevision === 0
+    ) {
+      captureLocation();
+    }
+  }, [
+    syncRevision,
+  ]);
 
   const activeAlert =
     useMemo(
@@ -642,7 +678,8 @@ export default function CitizenSosScreen() {
       setSubmitting(true);
 
       try {
-        await sendSosAlert({
+        const result =
+          await sendSosAlert({
           emergencyType,
           description,
           latitude:
@@ -652,12 +689,27 @@ export default function CitizenSosScreen() {
           voiceNote,
         });
 
-        Alert.alert(
-          tr("SOS sent"),
-          tr(
-            "Your emergency alert was saved in MediReach.",
-          ),
-        );
+        if (
+          (result as any)
+            ?.offlineCreated
+        ) {
+          Alert.alert(
+            tr(
+              "SOS saved - NOT YET SENT",
+            ),
+            tr(
+              "Your emergency is saved on this device but has not reached a responder yet. MediReach will keep trying when internet returns. Use USSD *347*99# if available.",
+            ),
+          );
+        }
+        else {
+          Alert.alert(
+            tr("SOS sent"),
+            tr(
+              "Your emergency alert was saved in MediReach.",
+            ),
+          );
+        }
 
         setEmergencyType(
           null,
@@ -694,6 +746,7 @@ export default function CitizenSosScreen() {
       }
       keyboardShouldPersistTaps="handled"
     >
+      <CitizenOfflineBanner />
       <View
         style={
           styles.hero
@@ -814,13 +867,20 @@ export default function CitizenSosScreen() {
             }
           >
             {activeAlert
-              ? `${tr(
-                  "Critical",
-                )} · ${String(
-                  activeAlert
-                    .status ??
-                    tr("New"),
-                )}`
+              ? activeAlert
+                  .offlineCreated
+                ? `${tr(
+                    "Critical",
+                  )} · ${tr(
+                    "Waiting to sync - NOT YET SENT",
+                  )}`
+                : `${tr(
+                    "Critical",
+                  )} · ${String(
+                    activeAlert
+                      .status ??
+                      tr("New"),
+                  )}`
               : tr(
                   "Your latest emergency alert will appear here.",
                 )}

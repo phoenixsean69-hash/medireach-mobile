@@ -1,3 +1,5 @@
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
 import {
   Mulish_400Regular,
   Mulish_600SemiBold,
@@ -30,7 +32,7 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: colors.canvas }}>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -38,6 +40,6 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: colors.canvas },
         }}
       />
-    </>
+    </SafeAreaProvider>
   );
 }

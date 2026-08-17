@@ -328,9 +328,7 @@ async function persistSignupRows(
         ),
 
       accountStatus:
-        professional
-          ? "pending_verification"
-          : "active",
+        "active",
 
       facilityId,
       facilityName:
@@ -350,9 +348,9 @@ async function persistSignupRows(
           form.catchmentArea,
         ),
 
-      tDhorobhangLevel:
+      trainingLevel:
         optionalText(
-          form.tDhorobhangLevel,
+          form.trainingLevel,
         ),
 
       certificationNumber:
@@ -721,10 +719,10 @@ export function validateSignup(
 
     if (
       !clean(
-        form.tDhorobhangLevel,
+        form.trainingLevel,
       )
     ) {
-      return "TDhorobhang level is required.";
+      return "Training level is required.";
     }
   }
 
@@ -911,12 +909,10 @@ export async function createMediReachAccount(
         form.role,
 
       accountStatus:
-        professional
-          ? "pending_verification"
-          : "active",
+        "active",
 
       verificationRequired:
-        professional,
+        false,
 
       firstName:
         clean(

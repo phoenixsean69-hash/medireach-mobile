@@ -93,9 +93,7 @@ export default function AuthSuccess() {
 
           if (
             role ===
-              "rural_health_worker" &&
-            accountStatus ===
-              "active"
+              "rural_health_worker"
           ) {
             router.replace(
               "/(rhw-tabs)" as any,
@@ -104,6 +102,36 @@ export default function AuthSuccess() {
             return;
           }
 
+          if (
+            role ===
+              "nurse"
+          ) {
+            router.replace(
+              "/(nurse-tabs)" as any,
+            );
+
+            return;
+          }
+          if (
+            role ===
+              "doctor"
+          ) {
+            router.replace(
+              "/(doctor-tabs)" as any,
+            );
+
+            return;
+          }
+          if (
+            role ===
+              "specialist"
+          ) {
+            router.replace(
+              "/(specialist-tabs)" as any,
+            );
+
+            return;
+          }
           if (active) {
             setUser(
               currentUser,

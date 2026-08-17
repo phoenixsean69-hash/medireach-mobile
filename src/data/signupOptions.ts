@@ -87,11 +87,11 @@ export const CATCHMENT_AREAS = [
   "Mining community","Growth point","Resettlement area","School catchment","Mission catchment"
 ];
 
-export const RHW_TDhorobhaNG_LEVELS = [
-  "Village Health Worker tDhorobhang","Community Health Worker tDhorobhang",
-  "Primary Health Care tDhorobhang","Maternal and Child Health tDhorobhang",
-  "HIV/TB community care tDhorobhang","First Aid tDhorobhang","Emergency response tDhorobhang",
-  "Health promotion tDhorobhang","Community-based disease surveillance tDhorobhang"
+export const RHW_TRAINING_LEVELS = [
+  "Village Health Worker training","Community Health Worker training",
+  "Primary Health Care training","Maternal and Child Health training",
+  "HIV/TB community care training","First Aid training","Emergency response training",
+  "Health promotion training","Community-based disease surveillance training"
 ];
 
 export const NURSING_CADRES = [
@@ -146,7 +146,18 @@ export const SUBSPECIALTIES = [
   "Pain Medicine"
 ];
 
-export const LANGUAGES = ["English","Shona","isiNdebele"];
+export const LANGUAGES = [
+  "English",
+  "Shona",
+  "isiNdebele",
+  "Chichewa",
+  "Ndau",
+  "Tsonga",
+  "Sesotho",
+  "Tswana",
+  "Venda",
+  "isiXhosa",
+];
 
 export const DISTRICTS_BY_PROVINCE: Record<string, string[]> = {
   "Bulawayo": [

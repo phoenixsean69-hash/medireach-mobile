@@ -13,10 +13,14 @@ import {
   tablesDB,
 } from "../config/appwrite";
 
+import {
+  normalizeZimbabweLanguage,
+  translateZimbabweText,
+  type ZimbabweTextLanguage,
+} from "../i18n/zimbabweLanguages";
+
 export type RhwLanguage =
-  | "English"
-  | "Shona"
-  | "isiNdebele";
+  ZimbabweTextLanguage;
 
 type RhwProfile =
   Record<string, any> & {
@@ -51,7 +55,9 @@ type RhwContextValue = {
 const SHONA:
   Record<string, string> = {
     "Home":
-      "Kumba",
+      "Home",
+    "Care":
+      "Rubatsiro",
     "Care Queue":
       "Zvikumbiro",
     "SOS":
@@ -59,9 +65,9 @@ const SHONA:
     "Messages":
       "Mameseji",
     "Profile":
-      "Nhoroondo",
+      "Nezvangu",
     "Rural Health Worker":
-      "Mushandi Wehutano Kumaruwa",
+      "Mushandi Wehutano kumamisha",
     "Frontline care, closer to the community.":
       "Rubatsiro rwehutano pedyo nenharaunda.",
     "Your work area":
@@ -120,6 +126,8 @@ const NDEBELE:
   Record<string, string> = {
     "Home":
       "Ikhaya",
+    "Care":
+      "Ukunakekelwa",
     "Care Queue":
       "Izicelo",
     "SOS":
@@ -187,14 +195,9 @@ const NDEBELE:
 function normalizeLanguage(
   value: unknown,
 ): RhwLanguage {
-  if (
-    value === "Shona" ||
-    value === "isiNdebele"
-  ) {
-    return value;
-  }
-
-  return "English";
+  return normalizeZimbabweLanguage(
+    value,
+  );
 }
 
 const Context =
@@ -307,7 +310,10 @@ export function RhwAppProvider({
           ) {
             return (
               SHONA[text] ??
-              text
+              translateZimbabweText(
+                text,
+                language,
+              )
             );
           }
 
@@ -319,11 +325,17 @@ export function RhwAppProvider({
               NDEBELE[
                 text
               ] ??
-              text
+              translateZimbabweText(
+                text,
+                language,
+              )
             );
           }
 
-          return text;
+          return translateZimbabweText(
+            text,
+            language,
+          );
         },
       [language],
     );

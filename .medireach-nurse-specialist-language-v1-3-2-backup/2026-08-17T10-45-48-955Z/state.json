@@ -1,0 +1,49 @@
+{
+  "src/screens/NurseMessagesScreen.tsx": {
+    "existed": true,
+    "hash": "32268a3937ce914e4dfdc4875e5cb45c4dbbc82be806df6bab60de5d4a17b23c"
+  },
+  "src/screens/SpecialistMessagesScreen.tsx": {
+    "existed": true,
+    "hash": "840c7c2d64b5e7c780473a41e1784d7aa59be61f50f55d83c27d446b2d2ffea2"
+  },
+  "src/screens/NurseSpecialistConsultScreen.tsx": {
+    "existed": true,
+    "hash": "b5ff25a2a3998ad929003438f9e4197d1455b4adb24543e87062b99ce4c0d86a"
+  },
+  "src/screens/ClinicalConsultThreadScreen.tsx": {
+    "existed": true,
+    "hash": "1363abeb91921c0830f2c3acf81064d716139d467c56de0475db6883af9b82e6"
+  },
+  "src/services/nurseSpecialistConsultService.ts": {
+    "existed": true,
+    "hash": "e16fb04d22f712317435dd8b27311bdd4e65a589db16014baac4ed36982f6ff3"
+  },
+  "src/app/(nurse-tabs)/specialist-consult.tsx": {
+    "existed": true,
+    "hash": "c38dd501287c5c27f6cb3eef1f01ebca1ec81bd92cd7dbd32916328ecb20216e"
+  },
+  "src/app/(nurse-tabs)/consult-thread.tsx": {
+    "existed": true,
+    "hash": "252bb34c65073efc4d4c11de156653abe7af7edb1c33d6ad6ab294ee629a8dac"
+  },
+  "src/app/(specialist-tabs)/consult-thread.tsx": {
+    "existed": true,
+    "hash": "252bb34c65073efc4d4c11de156653abe7af7edb1c33d6ad6ab294ee629a8dac"
+  },
+  "src/app/(nurse-tabs)/_layout.tsx": {
+    "existed": true,
+    "hash": "4aa3d997861a56de86f270e3823e5ce1d1fc0325e17756787d1110f8dc0d449f"
+  },
+  "src/app/(specialist-tabs)/_layout.tsx": {
+    "existed": true,
+    "hash": "a852df55ccb6fe5109cff372550c7055888f6a5d79c6f5ba1b4781175be20824"
+  },
+  "src/context/SpecialistAppContext.tsx": {
+    "existed": true,
+    "hash": "15904bfb786f2619f0fd0cdabf193d2f7db4861bd49fc897aa792bfe89848236"
+  },
+  "src/i18n/consultLanguage.ts": {
+    "existed": false
+  }
+}

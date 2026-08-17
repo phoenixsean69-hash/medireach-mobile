@@ -1,3 +1,5 @@
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import * as Location from "expo-location";
 
 import {
@@ -31,7 +33,6 @@ import {
   Alert,
   Modal,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -42,6 +43,12 @@ import {
 import {
   useCitizenApp,
 } from "../context/CitizenAppContext";
+
+import {
+  useCitizenOffline,
+} from "../context/CitizenOfflineContext";
+
+import CitizenOfflineBanner from "../components/citizen/CitizenOfflineBanner";
 
 import VoiceDescriptionRecorder, {
   type CareVoiceNote,
@@ -84,7 +91,7 @@ const SHONA:
       "Rubatsiro",
 
     "Get help without travelling first.":
-      "Wana rubatsiro usati watanga kufamba.",
+      "Wana rubatsiro uri pauri.",
 
     "Request care":
       "Kumbira rubatsiro",
@@ -99,7 +106,7 @@ const SHONA:
       "Chimbichimbi",
 
     "Need urgent help right now?":
-      "Unoda rubatsiro rwechimbichimbi izvozvi?",
+      "Unoda rubatsiro nekukasika ?",
 
     "Use SOS for severe or immediate emergencies.":
       "Shandisa SOS kana dambudziko rakanyanya kana richida rubatsiro pakarepo.",
@@ -566,6 +573,15 @@ const NDEBELE:
     "Your care request was saved securely.":
       "Isicelo sakho sokunakekelwa sigcinwe ngokuphepha.",
 
+    "Saved offline":
+      "Sigcinwe kungela internet",
+
+    "Your care request is saved on this device and will be sent automatically when internet returns.":
+      "Isicelo sakho sigcinwe kule ifoni njalo sizathunyelwa ngokuzenzakalela nxa internet isibuya.",
+
+    "Waiting to sync":
+      "Silindele ukuthunyelwa",
+
     "Request failed":
       "Ukuthumela isicelo kwehlulekile",
 
@@ -710,6 +726,11 @@ export default function CitizenCareScreen() {
   } =
     useCitizenApp();
 
+  const {
+    syncRevision,
+  } =
+    useCitizenOffline();
+
   const tr =
     (
       text: string,
@@ -815,7 +836,9 @@ export default function CitizenCareScreen() {
 
   useEffect(() => {
     refreshRequests();
-  }, []);
+  }, [
+    syncRevision,
+  ]);
 
   const activeRequest =
     careRows.find(
@@ -1082,7 +1105,8 @@ export default function CitizenCareScreen() {
       setSubmitting(true);
 
       try {
-        await createCareRequest({
+        const result =
+          await createCareRequest({
           description:
             symptoms,
 
@@ -1114,14 +1138,29 @@ export default function CitizenCareScreen() {
 
         await refreshRequests();
 
-        Alert.alert(
-          tr(
-            "Care request sent",
-          ),
-          tr(
-            "Your care request was saved securely.",
-          ),
-        );
+        if (
+          (result as any)
+            ?.offlineCreated
+        ) {
+          Alert.alert(
+            tr(
+              "Saved offline",
+            ),
+            tr(
+              "Your care request is saved on this device and will be sent automatically when internet returns.",
+            ),
+          );
+        }
+        else {
+          Alert.alert(
+            tr(
+              "Care request sent",
+            ),
+            tr(
+              "Your care request was saved securely.",
+            ),
+          );
+        }
 
         closeRequest();
       }
@@ -1183,6 +1222,7 @@ export default function CitizenCareScreen() {
           false
         }
       >
+        <CitizenOfflineBanner />
         <View
           style={
             styles.header
@@ -1437,9 +1477,16 @@ export default function CitizenCareScreen() {
                     activeRequest
                       .urgency ||
                       "",
-                  )} · ${tr(
-                    "Open",
-                  )}`
+                  )} · ${
+                    activeRequest
+                      .offlineCreated
+                      ? tr(
+                          "Waiting to sync",
+                        )
+                      : tr(
+                          "Open",
+                        )
+                  }`
                 : tr(
                     "Your care request progress will appear here after it is sent.",
                   )}

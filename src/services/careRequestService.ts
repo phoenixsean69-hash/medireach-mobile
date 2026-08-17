@@ -6,9 +6,7 @@ import {
   account,
   APPWRITE,
   ID,
-  Permission,
   Query,
-  Role,
   storage,
   TABLES,
   tablesDB,
@@ -17,6 +15,27 @@ import {
 import type {
   CareVoiceNote,
 } from "../components/care/VoiceDescriptionRecorder";
+
+import {
+  isOfflineModeActive,
+  noteOfflineMutationRemoteFailure,
+  noteOfflineMutationRemoteSuccess,
+  shouldQueueOfflineMutation,
+} from "../offline/offlineAppwrite";
+
+import {
+  enqueueCitizenOfflineMutation,
+  listQueuedRows,
+  makeOfflineMutationId,
+  persistOfflineVoiceNote,
+} from "../offline/offlineMutationQueue";
+
+import {
+  findNearbyRhwRecipients,
+  responderRowPermissions,
+  responderVoiceReadPermissions,
+  type NearbyRhwRecipient,
+} from "./rhwProximityService";
 
 export type CareRequestInput = {
   description: string;
@@ -97,6 +116,9 @@ function getLocalAudioFile(
 async function uploadVoiceNote(
   note: CareVoiceNote,
   userId: string,
+  fileId: string,
+  nearbyRhws:
+    NearbyRhwRecipient[],
 ) {
   const file =
     getLocalAudioFile(
@@ -108,28 +130,16 @@ async function uploadVoiceNote(
       bucketId:
         APPWRITE.storageId,
 
-      fileId:
-        ID.unique(),
+      fileId,
 
-      // Expo File implements Blob and
-      // still exposes the React Native
-      // file properties Appwrite uses:
-      // name, type, size and uri.
-      //
-      // Passing the File itself avoids
-      // React Native treating a plain
-      // { uri, name, type, size } object
-      // as an unsupported FormData part.
       file:
         file as any,
 
-      permissions: [
-        Permission.read(
-          Role.user(
-            userId,
-          ),
+      permissions:
+        responderVoiceReadPermissions(
+          userId,
+          nearbyRhws,
         ),
-      ],
     });
 
   return {
@@ -147,11 +157,197 @@ async function uploadVoiceNote(
   };
 }
 
+function makeLocalCareRow({
+  mutationId,
+  remoteRowId,
+  userId,
+  input,
+  createdAt,
+}: {
+  mutationId: string;
+  remoteRowId: string;
+  userId: string;
+  input: CareRequestInput;
+  createdAt: string;
+}) {
+  const urgency =
+    normalizeUrgency(
+      input.urgency,
+    );
+
+  return {
+    $id:
+      `offline:${mutationId}`,
+    $createdAt:
+      createdAt,
+    $updatedAt:
+      createdAt,
+    remoteRowId,
+    patientId:
+      userId,
+    requesterUserId:
+      userId,
+    createdByUserId:
+      userId,
+    requestType:
+      "medical_assistance",
+    channel:
+      "mobile",
+    urgency,
+    priority:
+      urgency,
+    status:
+      "waiting_to_sync",
+    description:
+      input.description
+        .trim(),
+    duration:
+      input.duration,
+    location:
+      makeLocationText(
+        input,
+      ),
+    latitude:
+      input.latitude,
+    longitude:
+      input.longitude,
+    locationSource:
+      input.locationSource ??
+      "",
+    source:
+      "MediReach Mobile",
+    createdAt,
+    notes:
+      input.notes.trim(),
+    preferredLanguage:
+      input.language,
+    offlineCreated:
+      true,
+    syncStatus:
+      "waiting_to_sync",
+    offlineMutationId:
+      mutationId,
+  };
+}
+
+async function queueCareRequest({
+  userId,
+  input,
+  mutationId,
+  remoteRowId,
+  voiceFileId,
+  createdAt,
+}: {
+  userId: string;
+  input: CareRequestInput;
+  mutationId: string;
+  remoteRowId: string;
+  voiceFileId:
+    | string
+    | null;
+  createdAt: string;
+}) {
+  const voiceNote =
+    await persistOfflineVoiceNote(
+      userId,
+      mutationId,
+      input.voiceNote,
+    );
+
+  const localRow =
+    makeLocalCareRow({
+      mutationId,
+      remoteRowId,
+      userId,
+      input,
+      createdAt,
+    });
+
+  await enqueueCitizenOfflineMutation({
+    id:
+      mutationId,
+    userId,
+    type:
+      "care.create",
+    payload: {
+      remoteRowId,
+      voiceFileId,
+      voiceNote,
+      createdAt,
+      input: {
+        description:
+          input.description,
+        duration:
+          input.duration,
+        urgency:
+          input.urgency,
+        latitude:
+          input.latitude,
+        longitude:
+          input.longitude,
+        locationSource:
+          input.locationSource,
+        location:
+          makeLocationText(
+            input,
+          ),
+        notes:
+          input.notes,
+        language:
+          input.language,
+      },
+      localRow,
+    },
+  });
+
+  return localRow;
+}
+
 export async function createCareRequest(
   input: CareRequestInput,
 ) {
   const user =
     await account.get();
+
+  const mutationId =
+    makeOfflineMutationId(
+      "care",
+    );
+
+  const remoteRowId =
+    ID.unique();
+
+  const voiceFileId =
+    input.voiceNote
+      ? ID.unique()
+      : null;
+
+  const createdAt =
+    new Date()
+      .toISOString();
+
+  if (
+    isOfflineModeActive()
+  ) {
+    return queueCareRequest({
+      userId:
+        user.$id,
+      input,
+      mutationId,
+      remoteRowId,
+      voiceFileId,
+      createdAt,
+    });
+  }
+
+  const nearbyRhws =
+    await findNearbyRhwRecipients({
+      latitude:
+        input.latitude,
+
+      longitude:
+        input.longitude,
+    });
 
   let uploadedVoiceId:
     | string
@@ -166,11 +362,16 @@ export async function createCareRequest(
         }
       | null = null;
 
-    if (input.voiceNote) {
+    if (
+      input.voiceNote &&
+      voiceFileId
+    ) {
       voice =
         await uploadVoiceNote(
           input.voiceNote,
           user.$id,
+          voiceFileId,
+          nearbyRhws,
         );
 
       uploadedVoiceId =
@@ -232,9 +433,7 @@ export async function createCareRequest(
       source:
         "MediReach Mobile",
 
-      createdAt:
-        new Date()
-          .toISOString(),
+      createdAt,
 
       notes:
         input.notes
@@ -256,29 +455,54 @@ export async function createCareRequest(
         null,
     };
 
-    return await tablesDB
-      .createRow({
-        databaseId:
-          APPWRITE.databaseId,
+    const row =
+      await tablesDB
+        .createRow({
+          databaseId:
+            APPWRITE.databaseId,
 
-        tableId:
-          TABLES.careRequests,
+          tableId:
+            TABLES.careRequests,
 
-        rowId:
-          ID.unique(),
+          rowId:
+            remoteRowId,
 
-        data,
+          data,
 
-        permissions: [
-          Permission.read(
-            Role.user(
+          permissions:
+            responderRowPermissions(
               user.$id,
+              nearbyRhws,
             ),
-          ),
-        ],
-      });
+        });
+
+    noteOfflineMutationRemoteSuccess();
+
+    return row;
   }
-  catch (error) {
+  catch (
+    error
+  ) {
+    if (
+      shouldQueueOfflineMutation(
+        error,
+      )
+    ) {
+      noteOfflineMutationRemoteFailure(
+        error,
+      );
+
+      return queueCareRequest({
+        userId:
+          user.$id,
+        input,
+        mutationId,
+        remoteRowId,
+        voiceFileId,
+        createdAt,
+      });
+    }
+
     if (
       uploadedVoiceId
     ) {
@@ -293,9 +517,8 @@ export async function createCareRequest(
           });
       }
       catch {
-        // The original error is
-        // more important. An orphaned
-        // file can be cleaned later.
+        // Preserve the original
+        // submission error.
       }
     }
 
@@ -304,24 +527,73 @@ export async function createCareRequest(
 }
 
 export async function listMyCareRequests() {
-  const result =
-    await tablesDB.listRows({
-      databaseId:
-        APPWRITE.databaseId,
+  const user =
+    await account.get();
 
-      tableId:
-        TABLES.careRequests,
+  const queued =
+    await listQueuedRows(
+      user.$id,
+      "care.create",
+    );
 
-      queries: [
-        Query.orderDesc(
-          "$createdAt",
-        ),
-        Query.limit(20),
-      ],
+  try {
+    const result =
+      await tablesDB.listRows({
+        databaseId:
+          APPWRITE.databaseId,
 
-      total: false,
-      ttl: 0,
-    });
+        tableId:
+          TABLES.careRequests,
 
-  return result.rows;
+        queries: [
+          Query.orderDesc(
+            "$createdAt",
+          ),
+          Query.limit(20),
+        ],
+
+        total: false,
+        ttl: 0,
+      });
+
+    const remote =
+      result.rows as any[];
+
+    const queuedRemoteIds =
+      new Set(
+        queued
+          .map(
+            (row) =>
+              String(
+                row.remoteRowId ||
+                "",
+              ),
+          )
+          .filter(Boolean),
+      );
+
+    return [
+      ...queued,
+      ...remote.filter(
+        (row) =>
+          !queuedRemoteIds.has(
+            String(
+              row.$id ||
+              "",
+            ),
+          ),
+      ),
+    ];
+  }
+  catch (
+    error
+  ) {
+    if (
+      queued.length
+    ) {
+      return queued;
+    }
+
+    throw error;
+  }
 }

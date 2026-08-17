@@ -18,6 +18,27 @@ import type {
   CareVoiceNote,
 } from "../components/care/VoiceDescriptionRecorder";
 
+import {
+  isOfflineModeActive,
+  noteOfflineMutationRemoteFailure,
+  noteOfflineMutationRemoteSuccess,
+  shouldQueueOfflineMutation,
+} from "../offline/offlineAppwrite";
+
+import {
+  enqueueCitizenOfflineMutation,
+  listQueuedRows,
+  makeOfflineMutationId,
+  persistOfflineVoiceNote,
+} from "../offline/offlineMutationQueue";
+
+import {
+  findNearbyRhwRecipients,
+  responderRowPermissions,
+  responderVoiceReadPermissions,
+  type NearbyRhwRecipient,
+} from "./rhwProximityService";
+
 export type SosEmergencyType =
   | "accident"
   | "severe_illness"
@@ -69,38 +90,61 @@ async function resolvePatient(
     return direct as
       PatientRow;
   }
-  catch {
-    const result =
-      await tablesDB.listRows({
-        databaseId:
-          APPWRITE.databaseId,
+  catch (
+    directError
+  ) {
+    try {
+      const result =
+        await tablesDB.listRows({
+          databaseId:
+            APPWRITE.databaseId,
 
-        tableId:
-          TABLES.patients,
+          tableId:
+            TABLES.patients,
 
-        queries: [
-          Query.equal(
-            "userId",
-            [userId],
-          ),
+          queries: [
+            Query.equal(
+              "userId",
+              [userId],
+            ),
 
-          Query.limit(1),
-        ],
+            Query.limit(1),
+          ],
 
-        total: false,
-      });
+          total: false,
+        });
 
-    const patient =
-      result.rows[0] as
-        PatientRow | undefined;
+      const patient =
+        result.rows[0] as
+          PatientRow | undefined;
 
-    if (!patient) {
-      throw new Error(
-        "Your MediReach patient profile could not be found.",
-      );
+      if (!patient) {
+        throw new Error(
+          "Your MediReach patient profile could not be found.",
+        );
+      }
+
+      return patient;
     }
+    catch (
+      listError
+    ) {
+      if (
+        shouldQueueOfflineMutation(
+          directError,
+        ) ||
+        shouldQueueOfflineMutation(
+          listError,
+        )
+      ) {
+        return {
+          $id:
+            userId,
+        };
+      }
 
-    return patient;
+      throw listError;
+    }
   }
 }
 
@@ -133,6 +177,9 @@ function getAudioFile(
 async function uploadSosVoice(
   note: CareVoiceNote,
   userId: string,
+  fileId: string,
+  nearbyRhws:
+    NearbyRhwRecipient[],
 ) {
   const file =
     getAudioFile(
@@ -144,20 +191,15 @@ async function uploadSosVoice(
       bucketId:
         APPWRITE.storageId,
 
-      fileId:
-        ID.unique(),
+      fileId,
 
-      // Expo File implements Blob,
-      // avoiding the unsupported
-      // plain-object FormData path.
       file:
         file as any,
 
       permissions: [
-        Permission.read(
-          Role.user(
-            userId,
-          ),
+        ...responderVoiceReadPermissions(
+          userId,
+          nearbyRhws,
         ),
 
         Permission.update(
@@ -180,6 +222,8 @@ async function uploadSosVoice(
 async function lockVoiceFile(
   fileId: string,
   userId: string,
+  nearbyRhws:
+    NearbyRhwRecipient[],
 ) {
   try {
     await storage.updateFile({
@@ -188,21 +232,145 @@ async function lockVoiceFile(
 
       fileId,
 
-      permissions: [
-        Permission.read(
-          Role.user(
-            userId,
-          ),
+      permissions:
+        responderVoiceReadPermissions(
+          userId,
+          nearbyRhws,
         ),
-      ],
     });
   }
   catch {
-    // SOS submission has already
-    // succeeded. A later security
-    // hardening pass can repair
-    // file permissions if needed.
+    // The clinical row may already
+    // exist. Keep the original
+    // submission result primary.
   }
+}
+
+function makeLocalSosRow({
+  mutationId,
+  remoteRowId,
+  userId,
+  patient,
+  input,
+  createdAt,
+}: {
+  mutationId: string;
+  remoteRowId: string;
+  userId: string;
+  patient:
+    PatientRow;
+  input:
+    SosAlertInput;
+  createdAt: string;
+}) {
+  return {
+    $id:
+      `offline:${mutationId}`,
+    $createdAt:
+      createdAt,
+    $updatedAt:
+      createdAt,
+    remoteRowId,
+    patientId:
+      patient.$id,
+    createdByUserId:
+      userId,
+    emergencyType:
+      input.emergencyType,
+    description:
+      input.description
+        .trim(),
+    latitude:
+      input.latitude,
+    longitude:
+      input.longitude,
+    channel:
+      "offline_pending",
+    priority:
+      "critical",
+    status:
+      "waiting_to_sync",
+    facilityId:
+      patient.facilityId ??
+      "",
+    offlineCreated:
+      true,
+    syncStatus:
+      "waiting_to_sync",
+    offlineMutationId:
+      mutationId,
+  };
+}
+
+async function queueSosAlert({
+  userId,
+  patient,
+  input,
+  mutationId,
+  remoteRowId,
+  voiceFileId,
+  createdAt,
+}: {
+  userId: string;
+  patient:
+    PatientRow;
+  input:
+    SosAlertInput;
+  mutationId: string;
+  remoteRowId: string;
+  voiceFileId:
+    | string
+    | null;
+  createdAt: string;
+}) {
+  const voiceNote =
+    await persistOfflineVoiceNote(
+      userId,
+      mutationId,
+      input.voiceNote,
+    );
+
+  const localRow =
+    makeLocalSosRow({
+      mutationId,
+      remoteRowId,
+      userId,
+      patient,
+      input,
+      createdAt,
+    });
+
+  await enqueueCitizenOfflineMutation({
+    id:
+      mutationId,
+    userId,
+    type:
+      "sos.create",
+    payload: {
+      remoteRowId,
+      voiceFileId,
+      voiceNote,
+      patientId:
+        patient.$id,
+      facilityId:
+        patient.facilityId ??
+        "",
+      createdAt,
+      input: {
+        emergencyType:
+          input.emergencyType,
+        description:
+          input.description,
+        latitude:
+          input.latitude,
+        longitude:
+          input.longitude,
+      },
+      localRow,
+    },
+  });
+
+  return localRow;
 }
 
 export async function sendSosAlert(
@@ -216,16 +384,62 @@ export async function sendSosAlert(
       user.$id,
     );
 
-  let voiceFileId:
+  const mutationId =
+    makeOfflineMutationId(
+      "sos",
+    );
+
+  const remoteRowId =
+    ID.unique();
+
+  const voiceFileId =
+    input.voiceNote
+      ? ID.unique()
+      : null;
+
+  const createdAt =
+    new Date()
+      .toISOString();
+
+  if (
+    isOfflineModeActive()
+  ) {
+    return queueSosAlert({
+      userId:
+        user.$id,
+      patient,
+      input,
+      mutationId,
+      remoteRowId,
+      voiceFileId,
+      createdAt,
+    });
+  }
+
+  const nearbyRhws =
+    await findNearbyRhwRecipients({
+      latitude:
+        input.latitude,
+
+      longitude:
+        input.longitude,
+    });
+
+  let uploadedVoiceId:
     | string
     | null = null;
 
   try {
-    if (input.voiceNote) {
-      voiceFileId =
+    if (
+      input.voiceNote &&
+      voiceFileId
+    ) {
+      uploadedVoiceId =
         await uploadSosVoice(
           input.voiceNote,
           user.$id,
+          voiceFileId,
+          nearbyRhws,
         );
     }
 
@@ -263,9 +477,9 @@ export async function sendSosAlert(
           "new",
       };
 
-    if (voiceFileId) {
+    if (uploadedVoiceId) {
       data.voiceNoteFileId =
-        voiceFileId;
+        uploadedVoiceId;
     }
 
     if (patient.facilityId) {
@@ -282,30 +496,56 @@ export async function sendSosAlert(
           TABLES.sosAlerts,
 
         rowId:
-          ID.unique(),
+          remoteRowId,
 
         data,
 
-        permissions: [
-          Permission.read(
-            Role.user(
-              user.$id,
-            ),
+        permissions:
+          responderRowPermissions(
+            user.$id,
+            nearbyRhws,
           ),
-        ],
       });
 
-    if (voiceFileId) {
+    if (uploadedVoiceId) {
       await lockVoiceFile(
-        voiceFileId,
+        uploadedVoiceId,
         user.$id,
+        nearbyRhws,
       );
     }
 
+    noteOfflineMutationRemoteSuccess();
+
     return row;
   }
-  catch (error) {
-    if (voiceFileId) {
+  catch (
+    error
+  ) {
+    if (
+      shouldQueueOfflineMutation(
+        error,
+      )
+    ) {
+      noteOfflineMutationRemoteFailure(
+        error,
+      );
+
+      return queueSosAlert({
+        userId:
+          user.$id,
+        patient,
+        input,
+        mutationId,
+        remoteRowId,
+        voiceFileId,
+        createdAt,
+      });
+    }
+
+    if (
+      uploadedVoiceId
+    ) {
       try {
         await storage
           .deleteFile({
@@ -313,7 +553,7 @@ export async function sendSosAlert(
               APPWRITE.storageId,
 
             fileId:
-              voiceFileId,
+              uploadedVoiceId,
           });
       }
       catch {
@@ -335,30 +575,76 @@ export async function listMySosAlerts() {
       user.$id,
     );
 
-  const result =
-    await tablesDB.listRows({
-      databaseId:
-        APPWRITE.databaseId,
+  const queued =
+    await listQueuedRows(
+      user.$id,
+      "sos.create",
+    );
 
-      tableId:
-        TABLES.sosAlerts,
+  try {
+    const result =
+      await tablesDB.listRows({
+        databaseId:
+          APPWRITE.databaseId,
 
-      queries: [
-        Query.equal(
-          "patientId",
-          [patient.$id],
-        ),
+        tableId:
+          TABLES.sosAlerts,
 
-        Query.orderDesc(
-          "$createdAt",
-        ),
+        queries: [
+          Query.equal(
+            "patientId",
+            [patient.$id],
+          ),
 
-        Query.limit(20),
-      ],
+          Query.orderDesc(
+            "$createdAt",
+          ),
 
-      total: false,
-      ttl: 0,
-    });
+          Query.limit(20),
+        ],
 
-  return result.rows;
+        total: false,
+        ttl: 0,
+      });
+
+    const remote =
+      result.rows as any[];
+
+    const queuedRemoteIds =
+      new Set(
+        queued
+          .map(
+            (row) =>
+              String(
+                row.remoteRowId ||
+                "",
+              ),
+          )
+          .filter(Boolean),
+      );
+
+    return [
+      ...queued,
+      ...remote.filter(
+        (row) =>
+          !queuedRemoteIds.has(
+            String(
+              row.$id ||
+              "",
+            ),
+          ),
+      ),
+    ];
+  }
+  catch (
+    error
+  ) {
+    if (
+      queued.length
+    ) {
+      return queued;
+    }
+
+    throw error;
+  }
 }

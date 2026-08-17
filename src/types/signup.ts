@@ -36,7 +36,7 @@ export type SignupForm = {
   workerNumber: string;
   facilityName: string;
   catchmentArea: string;
-  tDhorobhangLevel: string;
+  trainingLevel: string;
   certificationNumber: string;
   professionalRegistrationNumber: string;
   nursingCadre: string;
@@ -84,7 +84,7 @@ export const emptySignupForm: SignupForm = {
   workerNumber: "",
   facilityName: "",
   catchmentArea: "",
-  tDhorobhangLevel: "",
+  trainingLevel: "",
   certificationNumber: "",
   professionalRegistrationNumber: "",
   nursingCadre: "",

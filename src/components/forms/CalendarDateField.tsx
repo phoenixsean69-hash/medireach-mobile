@@ -1,18 +1,19 @@
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
   X,
-} from "lucide-react-native";
+  } from "lucide-react-native";
 import {
   useEffect,
   useMemo,
   useState,
-} from "react";
+  } from "react";
 import {
   Modal,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,

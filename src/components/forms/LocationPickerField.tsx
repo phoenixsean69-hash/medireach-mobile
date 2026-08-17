@@ -1,3 +1,5 @@
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import * as Location from "expo-location";
 import {
   Crosshair,
@@ -5,19 +7,18 @@ import {
   Navigation,
   Search,
   X,
-} from "lucide-react-native";
+  } from "lucide-react-native";
 import {
   useMemo,
   useRef,
   useState,
-} from "react";
+  } from "react";
 import {
   ActivityIndicator,
   Alert,
   FlatList,
   Modal,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
