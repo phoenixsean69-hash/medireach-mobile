@@ -251,9 +251,9 @@ const SHONA:
     "Using local language": "Tiri kushandisa mutauro wenzvimbo",
     "Language can be changed at any time.": "Unogona kuchinja mutauro chero nguva.",
     "Location permission was not granted. Choose a language manually.":
-      "Mvumo yenzvimbo haina kupihwa. Sarudza mutauro nemaoko.",
+      "Mvumo yenzvimbo haina kupihwa. Sarudza mutauro.",
     "Could not detect the local area. Choose a language manually.":
-      "Hatina kukwanisa kuona nzvimbo yauri. Sarudza mutauro nemaoko.",
+      "Hatina kukwanisa kuona nzvimbo yauri. Sarudza mutauro.",
   };
 
 const NDEBELE:

@@ -19,8 +19,8 @@ const SHONA: Record<string, string> = {
   "Detecting local language...": "Tiri kutsvaga mutauro wenzvimbo...",
   "Detected area": "Nzvimbo yaonekwa",
   "Using local language": "Tiri kushandisa mutauro wenzvimbo",
-  "Location permission was not granted. Choose a language manually.": "Mvumo yekushandisa nzvimbo haina kupihwa. Sarudza mutauro nemaoko.",
-  "Could not detect the local area. Choose a language manually.": "Hatina kukwanisa kuona nzvimbo yauri. Sarudza mutauro nemaoko.",
+  "Location permission was not granted. Choose a language manually.": "Mvumo yekushandisa nzvimbo haina kupihwa. Sarudza mutauro.",
+  "Could not detect the local area. Choose a language manually.": "Hatina kukwanisa kuona nzvimbo yauri. Sarudza mutauro.",
   "English is being used because this area is outside Zimbabwe or could not be matched.": "Chirungu chiri kushandiswa nekuti nzvimbo iyi iri kunze kweZimbabwe kana kuti haina kuzivikanwa.",
   "Language can be changed at any time.": "Unogona kuchinja mutauro chero nguva.",
 

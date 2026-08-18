@@ -9,9 +9,9 @@ export type AssessmentLanguage =
 
 const SHONA: Record<string, string> = {
   "Health Check": "Ongororo yeHutano",
-  "Check my symptoms": "Ongorora zviratidzo zvangu",
+  "Check my symptoms": "Ongorora zviratidzo zvandiinazvo",
   "Tell MediReach what you feel. It will ask focused questions and prepare a preliminary assessment for a health worker to review.": "Udza MediReach zvauri kunzwa. Ichakubvunza mibvunzo yakatarisana nedambudziko uye igadzirire mushandi wehutano ongororo yekutanga.",
-  "No equipment needed": "Hapana mudziyo unodiwa",
+  "No equipment needed": "Hapana meshina unodiwa",
   "This check only uses what you feel and observe. Medical-device and laboratory measurements are left to real equipment and future IoT integration.": "Ongororo iyi inoshandisa chete zvauri kunzwa nezvaunoona. Zviyero zvemichina yekurapa nemarabhoritari zvinosiiwa kumidziyo chaiyo uye IoT yeramangwana.",
   "What is bothering you most?": "Chii chiri kukunetsa zvikuru?",
   "Where do you feel it?": "Unonzwa papi?",
@@ -24,7 +24,7 @@ const SHONA: Record<string, string> = {
   "In your own words": "Nemashoko ako",
   "Add anything important that the health worker should know.": "Wedzera chero chinhu chakakosha chinofanira kuzivikanwa nemushandi wehutano.",
   "See my result": "Ona mhedzisiro yangu",
-  "Based on what you told me, you may have:": "Kubva pane zvawandiudza, zvinogona kuva:",
+  "Based on what you told me, you may have:": "Kubva pane zvawandiudza, unogona kuva uine:",
   "Other possibilities": "Zvimwe zvinogona kuva",
   "Warning signs": "Zviratidzo zveyambiro",
   "Why MediReach thinks this": "Chikonzero nei MediReach ichifunga izvi",

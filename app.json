@@ -17,7 +17,11 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.phoenix69.medireachmobile",
-      "icon": "./assets/images/medireach-logo.png"
+      "icon": "./assets/images/medireach-logo.png",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "output": "static",
@@ -51,7 +55,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "e7c2d394-2fe0-4cff-b78b-4dee2e46f9bb"
+        "projectId": "5927fbac-2225-40c6-8edc-546932c56dad"
       }
     },
     "owner": "phoenix69",
